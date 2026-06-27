@@ -92,10 +92,6 @@ services.flatpak.enable = true;
 programs.firefox.enable = true;
 programs.steam.enable = true;
 
-
-# Copy the NixOS configuration file to "/run/current-system/configuration.nix" in case you delete the config
-system.copySystemConfiguration = true;
-
 # DO NOT CHANGE THE VERSION
 # For more information, see https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion
 system.stateVersion = "26.05";

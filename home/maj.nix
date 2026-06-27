@@ -7,9 +7,9 @@ home.file = {
 ".bash_profile".source = ./bash/bash_profile;
 
 # Nvim config
-".config/nvim/init.lua".source = ./singleFile/configs/nvim.lua;
+".config/nvim/init.lua".source = ./configs/singleFile/configs/nvim.lua;
 # Fastfetch config
-".config/fastfetch/config.jsonc".source = ./singleFile/configs/fastfetch.jsonc;
+".config/fastfetch/config.jsonc".source = ./configs/singleFile/configs/fastfetch.jsonc;
 
 # Hyprland config
 ".config/hypr/hyprland.lua".source = ./configs/hyprland/hyprland.lua;
