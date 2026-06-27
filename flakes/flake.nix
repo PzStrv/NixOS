@@ -14,12 +14,12 @@
 	nixosConfigurations.pingo = nixpkgs.lib.nixosSystem {
 	  system = "x86_64-linux";
 	  modules = [
-		./configuration.nix
+		/etc/nixos/configuration.nix
 		home-manager.nixosModules.home-manager
 		{
 		  home-manager.useGlobalPkgs = true;
 		  home-manager.useUserPackages = true;
-		  home-manager.users.maj = import ./home/maj.nix;
+		  home-manager.users.maj = import /etc/nixos/home/maj.nix;
 		}
 	  ];
 	};

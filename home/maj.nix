@@ -1,14 +1,21 @@
 { pkgs, ... }:
 {
-home.file.".bashrc".source = ./bashrc;
-home.file.".bash_profile".source = ./bash_profile;
 
-home.file.".config/nvim/init.lua".source = ./configs/nvim.lua;
-home.file.".config/fastfetch/config.jsonc".source = ./configs/fastfetch.jsonc;
+home.file = {
+# .bahrc config
+".bashrc".source = ./bash/bashrc;
+".bash_profile".source = ./bash/bash_profile;
 
-home.file.".config/hypr/hyprland.lua".source = ./hyprland/hyprland.lua;
-home.file.".config/waybar/config.jsonc".source = ./hyprland/waybar.jsonc;
-home.file.".config/waybar/style.css".source = ./hyprland/waybar.css;
+# Nvim config
+".config/nvim/init.lua".source = ./singleFile/configs/nvim.lua;
+# Fastfetch config
+".config/fastfetch/config.jsonc".source = ./singleFile/configs/fastfetch.jsonc;
+
+# Hyprland config
+".config/hypr/hyprland.lua".source = ./configs/hyprland/hyprland.lua;
+".config/waybar/config.jsonc".source = ./configs/hyprland/waybar.jsonc;
+".config/waybar/style.css".source = ./configs/hyprland/waybar.css;
+};
 
 home.username = "maj";
 home.homeDirectory = "/home/maj";
@@ -16,13 +23,20 @@ home.stateVersion = "24.11";
 
 home.packages = with pkgs; [
 # Gaem
+    heroic
 
 # Code
     zed-editor
+    vscodium
 
 # System
     fastfetch
     btop
+
+# Editing/REC
+	kdePackages.kdenlive
+	krita
+	obs-studio
 
 # Other
     discord
