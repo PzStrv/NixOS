@@ -1,0 +1,37 @@
+{
+	"layer": "top",
+	"position": "top",
+	"height": 30,
+	"modules-left": ["cpu", "memory", "network", "tray"],
+	"modules-center": ["hyprland/window"],
+	"modules-right": ["clock"],
+
+	"clock": {
+		"format": "{:%d-%m-%Y  |  %H:%M }",
+		"tooltip": false
+	},
+
+	"cpu": {
+		"format": " CPU: {usage}%  |  ",
+		"interval": 2
+	},
+
+	"memory": {
+		"format": "RAM: {used}GB  |  ",
+		"interval": 2
+	},
+
+	"network": {
+		"format-ethernet": " {ifname}  |  ",
+		"format-wifi": " {essid} ({signalStrength}%)  |  ",
+		"format-disconnected": " disconnected  |  "
+	},
+
+	"tray": {
+		"spacing": 10
+	},
+
+	"hyprland/window": {
+    	"separate-outputs": true
+	}
+}
