@@ -37,16 +37,6 @@ environment.systemPackages = with pkgs; [
 	unzip
 	rar
 	unrar
-
-# Hyprland (test)
-	kitty
-	pipewire
-	wireplumber
-	noto-fonts
-	waybar
-	hyprlauncher
-	hyprpaper
-	nemo
 ];
 }
 
