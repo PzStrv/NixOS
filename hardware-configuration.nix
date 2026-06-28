@@ -16,11 +16,13 @@
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/e324840d-3283-4884-8a79-f16f059c77ee";
       fsType = "btrfs";
+      options = [ "defaults" "x-gvfs-show" "x-gvfs-name=/" ];
     };
 
   fileSystems."/home" =
     { device = "/dev/disk/by-uuid/cf6c45a6-e7fc-4d1f-bfeb-e3f9b451afcf";
       fsType = "btrfs";
+      options = [ "defaults" "x-gvfs-show" "x-gvfs-name=Home" ];
     };
 
   fileSystems."/boot" =
@@ -40,19 +42,19 @@
   fileSystems."/mnt/D" = {
     device = "UUID=1ff72dc8-8c84-4aef-aa33-398cae4cbe22";
     fsType = "ext4";
-	options = [ "defaults" "x-gvfs-show" ];
+	  options = [ "defaults" "x-gvfs-show" "x-gvfs-name=Games" ];
   };
 
   fileSystems."/mnt/R" = {
     device = "UUID=e1a23b15-c045-44b6-8d77-9109c64be2b4";
     fsType = "ext4";
-	options = [ "defaults" "x-gvfs-show" ];
+	  options = [ "defaults" "x-gvfs-show" "x-gvfs-name=Recording" ];
   };
 
   fileSystems."/mnt/P" = {
     device = "UUID=a74eee73-1c55-4f5c-b456-f3c30a9fdca3";
     fsType = "btrfs";
-	options = [ "defaults" "x-gvfs-show" ];
+	  options = [ "defaults" "x-gvfs-show" "x-gvfs-name=Personal" ];
   };
 
 }
