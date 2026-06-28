@@ -87,6 +87,7 @@ programs.gnupg.agent = {
 # Services:
 services.openssh.enable = true;
 services.flatpak.enable = true;
+services.gvfs.enable = true;
 
 # Programs:
 programs.firefox.enable = true;

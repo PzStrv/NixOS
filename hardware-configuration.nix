@@ -40,16 +40,19 @@
   fileSystems."/mnt/D" = {
     device = "UUID=1ff72dc8-8c84-4aef-aa33-398cae4cbe22";
     fsType = "ext4";
+	options = [ "defaults" "x-gvfs-show" ];
   };
 
   fileSystems."/mnt/R" = {
     device = "UUID=e1a23b15-c045-44b6-8d77-9109c64be2b4";
     fsType = "ext4";
+	options = [ "defaults" "x-gvfs-show" ];
   };
 
   fileSystems."/mnt/P" = {
     device = "UUID=a74eee73-1c55-4f5c-b456-f3c30a9fdca3";
     fsType = "btrfs";
+	options = [ "defaults" "x-gvfs-show" ];
   };
 
 }

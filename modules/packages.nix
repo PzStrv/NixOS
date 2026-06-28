@@ -25,7 +25,7 @@ environment.systemPackages = with pkgs; [
 # Default apps
 	kdePackages.gwenview
 	kdePackages.kate
-	kdePackages.dolphin
+	nemo    # Found via "Files"
 	kdePackages.ark
 	vlc
 
