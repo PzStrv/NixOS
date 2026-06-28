@@ -15,7 +15,7 @@ boot.loader = {
 	systemd-boot.enable = true;
 	systemd-boot.consoleMode = "keep";
 	efi.canTouchEfiVariables = true;
-	systemd-boot.configurationLimit = 2;
+	systemd-boot.configurationLimit = 5;
 	timeout = 0; # For the menu hold space on startup
 };
 
