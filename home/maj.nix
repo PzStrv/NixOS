@@ -23,6 +23,9 @@ home.packages = with pkgs; [
 # Code
     vscodium
 
+# Files
+    nemo
+
 # System
     fastfetch
     btop
