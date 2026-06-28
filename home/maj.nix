@@ -34,5 +34,6 @@ home.packages = with pkgs; [
 
 # Other
     discord
+	proton-vpn
 ];
 }
