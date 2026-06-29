@@ -37,6 +37,8 @@ environment.systemPackages = with pkgs; [
 	unzip
 	rar
 	unrar
+	docker
+	docker-compose
 ];
 }
 

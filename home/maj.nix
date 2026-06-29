@@ -16,6 +16,7 @@ home.username = "maj";
 home.homeDirectory = "/home/maj";
 home.stateVersion = "24.11";
 
+# https://search.nixos.org/packages
 home.packages = with pkgs; [
 # Gaem
     heroic
@@ -36,5 +37,6 @@ home.packages = with pkgs; [
     discord
 	proton-vpn
 	qbittorrent
+	winboat
 ];
 }

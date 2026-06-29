@@ -71,7 +71,7 @@ services.pipewire = {
 # Define a user account. Don't forget to set a password with ‘passwd’
 users.users.maj = {
   isNormalUser = true;
-  extraGroups = [ "wheel" "input" ]; # User groups
+  extraGroups = [ "wheel" "input" "docker" ]; # User groups
 };
 
 # Enables flakes
@@ -88,6 +88,7 @@ programs.gnupg.agent = {
 services.openssh.enable = true;
 services.flatpak.enable = true;
 services.gvfs.enable = true;
+services.docker.enable = true;
 
 # Programs:
 programs.firefox.enable = true;
