@@ -88,11 +88,15 @@ programs.gnupg.agent = {
 services.openssh.enable = true;
 services.flatpak.enable = true;
 services.gvfs.enable = true;
-services.docker.enable = true;
 
 # Programs:
 programs.firefox.enable = true;
 programs.steam.enable = true;
+
+# Docker:
+virtualisation.docker.enable = true;
+virtualisation.docker.storageDriver = "btrfs";
+
 
 # DO NOT CHANGE THE VERSION
 # For more information, see https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion

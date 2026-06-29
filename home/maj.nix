@@ -14,7 +14,7 @@ home.file = {
 
 home.username = "maj";
 home.homeDirectory = "/home/maj";
-home.stateVersion = "24.11";
+home.stateVersion = "26.05";
 
 # https://search.nixos.org/packages
 home.packages = with pkgs; [
