@@ -19,14 +19,16 @@ home.stateVersion = "26.05";
 # https://search.nixos.org/packages
 home.packages = with pkgs; [
 # Gaem
-    heroic
+  heroic
+  prismlauncher
 
 # Code
-    vscodium
+  vscodium
+  zed-editor
 
 # System
-    fastfetch
-    btop
+  fastfetch
+  btop
 
 # Editing/REC
 	kdePackages.kdenlive
@@ -34,7 +36,7 @@ home.packages = with pkgs; [
 	obs-studio
 
 # Other
-    discord
+  discord
 	proton-vpn
 	qbittorrent
 	winboat

@@ -89,6 +89,8 @@ services.openssh.enable = true;
 services.flatpak.enable = true;
 services.gvfs.enable = true;
 
+systemd.services.NetworkManager-wait-online.enable = false;
+
 # Programs:
 programs.firefox.enable = true;
 programs.steam.enable = true;

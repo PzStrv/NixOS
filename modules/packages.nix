@@ -29,6 +29,9 @@ environment.systemPackages = with pkgs; [
 	kdePackages.ark
 	vlc
 
+# Code
+	gcc
+
 # Other
 	wget
 	git
@@ -38,6 +41,7 @@ environment.systemPackages = with pkgs; [
 	rar
 	unrar
 	docker-compose
+	appimage-run
 ];
 }
 
