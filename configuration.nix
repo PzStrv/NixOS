@@ -45,17 +45,6 @@ hardware.bluetooth = {
   };
 };
 
-
-
-# Enables codium file-saving for root owned files
-security.wrappers.pkexec = {
-  owner = "root";
-  group = "root";
-  setuid = true;
-  enable = lib.mkForce true;
-  source = "${pkgs.polkit.bin}/bin/pkexec";
-};
-
 # Define your hostname.
 networking.hostName = "ppingo";
 

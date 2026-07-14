@@ -18,19 +18,17 @@ home.stateVersion = "26.05";
 
 # https://search.nixos.org/packages
 home.packages = with pkgs; [
-# Gaem
-    heroic
 
-# Code
+  # Code
 	zed-editor
 	gcc
 
 # System
-    fastfetch
-    btop
+  fastfetch
+  btop
 
 # Other
-    discord
+  discord
 	proton-vpn
 	qbittorrent
 ];
