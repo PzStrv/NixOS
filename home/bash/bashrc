@@ -1,0 +1,21 @@
+# /etc/bashrc
+
+PS1='\[\e[38;2;95;184;242m\]\u\[\e[0m\]@\[\e[0;37m\]\h\[\e[0m\]:\[\e[0;34m\]\w\[\e[0m\]\$ '
+
+# nvim
+alias vim="nvim"
+alias vi="nvim"
+alias v="nvim"
+
+# fastfetch
+alias neofetch="fastfetch"
+
+# system
+alias NSR="cd /etc/nixos && sudo nix flake update && cd -"
+alias nsr="sudo nixos-rebuild switch --flake /etc/nixos"
+
+alias nixos="cd /etc/nixos"
+alias nixhome="cd /etc/nixos/home"
+
+# pi3
+alias pi3="ssh panzer@192.168.1.125"
