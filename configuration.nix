@@ -50,12 +50,6 @@ services = {
   displayManager.sddm.wayland.enable = true;
 };
 
-# Hyprland
-programs.hyprland = {
-  enable = true;
-  xwayland.enable = true;
-};
-
 # Hint Electron apps (VS Code, Discord, etc.) to use Wayland
 environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
@@ -88,12 +82,26 @@ programs.gnupg.agent = {
 services.openssh.enable = true;
 services.flatpak.enable = true;
 services.gvfs.enable = true;
+services.ratbagd.enable = true; # For piper (gaming mice)
 
 systemd.services.NetworkManager-wait-online.enable = false;
+
+# For discord
+nixpkgs.config.permittedInsecurePackages = [
+  "electron-40.10.5"
+];
+
+# For kdenlive
+hardware.graphics = {
+  enable = true;
+  enable32Bit = true;
+};
+
 
 # Programs:
 programs.firefox.enable = true;
 programs.steam.enable = true;
+programs.java.enable = true;
 
 # Docker:
 virtualisation.docker.enable = true;

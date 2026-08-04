@@ -16,19 +16,21 @@ home.username = "maj";
 home.homeDirectory = "/home/maj";
 home.stateVersion = "26.05";
 
-# https://search.nixos.org/packages
+# https://search.nixos.org/paackages
 home.packages = with pkgs; [
 # Gaem
-  heroic
-  prismlauncher
+	heroic
+	satisfactorymodmanager
+	prismlauncher
+	lunar-client
 
 # Code
-  vscodium
-  zed-editor
+	vscodium
+	zed-editor
 
 # System
-  fastfetch
-  btop
+	fastfetch
+	btop
 
 # Editing/REC
 	kdePackages.kdenlive
@@ -36,7 +38,7 @@ home.packages = with pkgs; [
 	obs-studio
 
 # Other
-  discord
+	discord
 	proton-vpn
 	qbittorrent
 	winboat
