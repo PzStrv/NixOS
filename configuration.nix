@@ -102,6 +102,18 @@ hardware.graphics = {
 programs.firefox.enable = true;
 programs.steam.enable = true;
 programs.java.enable = true;
+programs.obs-studio = {
+	enable = true;
+
+	plugins = with pkgs.obs-studio-plugins; [
+		wlrobs
+		obs-backgroundremoval
+		obs-pipewire-audio-capture
+		obs-vaapi #optional AMD hardware acceleration
+		obs-gstreamer
+		obs-vkcapture
+	];
+};
 
 # Docker:
 virtualisation.docker.enable = true;

@@ -35,7 +35,6 @@ home.packages = with pkgs; [
 # Editing/REC
 	kdePackages.kdenlive
 	krita
-	obs-studio
 
 # Other
 	discord
