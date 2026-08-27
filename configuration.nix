@@ -6,6 +6,7 @@
 imports =
   [ # Include the results of the hardware scan.
     ./hardware-configuration.nix
+	./gpu-passthrough.nix
     ./modules/packages.nix
     ./modules/network.nix
   ];
@@ -114,6 +115,15 @@ programs.obs-studio = {
 		obs-vkcapture
 	];
 };
+programs.virt-manager.enable = true;
+users.groups.libvirtd.members = ["maj"];
+virtualisation.libvirtd = {
+  enable = true;
+  qemu = {
+    swtpm.enable = true;
+  };
+};
+virtualisation.spiceUSBRedirection.enable = true;
 
 # Docker:
 virtualisation.docker.enable = true;

@@ -11,11 +11,11 @@ alias v="nvim"
 alias neofetch="fastfetch"
 
 # system
-alias NSR="cd /etc/nixos && sudo nix flake update && cd -"
+alias NSR="cd /etc/nixos && sudo nix flake update && cd - && nix store gc && nix store optimise"
 alias nsr="sudo nixos-rebuild switch --flake /etc/nixos"
 
 alias nixos="cd /etc/nixos"
 alias nixhome="cd /etc/nixos/home"
 
 # pi3
-alias pi3="ssh panzer@192.168.1.125"
+alias pi3="ssh maj@192.168.1.125"
