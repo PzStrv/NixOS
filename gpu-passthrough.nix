@@ -4,75 +4,54 @@
 #   Host:  AMD CPU, AMD RX 9060 XT GPU, KDE Plasma / SDDM.
 #   Guest: AMD RX 9060 XT passed through to a VM via virt-manager.
 #
-# NOTE: this file does NOT configure hardware.graphics / videoDrivers --
-# those belong in your existing configuration.nix. This file
-# only adds IOMMU/VFIO/libvirt bits on top of whatever driver setup you
-# already have.
-#
-# HOW TO USE:
-#   1. Save this file as /etc/nixos/gpu-passthrough.nix
-#   2. In configuration.nix add to `imports = [ ... ./gpu-passthrough.nix ];`
-#   3. sudo nixos-rebuild switch && reboot
-#
-# PCI addresses were confirmed with lspci on this machine:
+# PCI addresses confirmed with lspci:
 #   0b:00.0  RX 9060 XT VGA      [1002:7590]
 #   0b:00.1  Navi 48 HDMI Audio  [1002:ab40]
 
-{ lib, pkgs, ... }:
+{ lib, pkgs, config, ... }:
 
 let
   gpuAddrVga   = "0000:0b:00.0";  # RX 9060 XT VGA [1002:7590]
   gpuAddrAudio = "0000:0b:00.1";  # Navi 48 HDMI/DP Audio [1002:ab40]
 
   username = "maj";
-
-  # Name you will give the VM in virt-manager. Must match exactly --
-  # the hook script only runs for a VM with this name.
-  vmName = "win11";
+  vmName   = "win11";
 in
 {
   # =====================================================================
-  # IOMMU / kernel boot params
+  # IOMMU / Kernel Boot Parameters
   # =====================================================================
   boot.kernelParams = [
     "amd_iommu=on"
     "iommu=pt"
-    # amdgpu.reset_method=4 can help ensure a clean GPU reset between
-    # host/guest handoffs on newer RDNA cards. Try without first;
-    # add if you see hangs or a black screen on VM shutdown.
-    # "amdgpu.reset_method=4"
+    "pcie_aspm=off"
+    "initcall_blacklist=sysfb_init"
+    "video=efifb:off"
+    "video=vesafb:off"
+    "video=simplefb:off"
+    # "amdgpu.reset_method=4"  -- causes black screen on Navi 44, leave disabled
   ];
 
-  # vfio_virqfd merged into vfio core in kernel 6.2; not listed to avoid
-  # a "module not found" warning. vfio_iommu_type1 is harmless to list
-  # explicitly even if built-in.
+  boot.initrd.kernelModules = [ "vfio_pci" "vfio" "vfio_iommu_type1" ];
   boot.kernelModules = [ "vfio_pci" "vfio" "vfio_iommu_type1" ];
 
-  # Do NOT blacklist amdgpu -- the host uses it normally.
-  # vfio-pci takes over only during VM runtime via the hook script.
-
   boot.extraModprobeConfig = ''
-    # Prevents Windows guests (esp. Win 11) BSODing on AMD hosts when
-    # Windows probes MSRs that KVM doesn't emulate.
     options kvm ignore_msrs=1 report_ignored_msrs=0
   '';
 
   # =====================================================================
-  # Virtualisation stack
+  # Virtualisation Stack
   # =====================================================================
   virtualisation.libvirtd = {
     enable = true;
     qemu = {
       package = pkgs.qemu_kvm;
       runAsRoot = true;
-      swtpm.enable = true; # TPM 2.0 emulation -- required for Windows 11
-      # No `ovmf` block needed: nixpkgs bundles OVMF firmware with qemu.
-      # Pick the UEFI/secboot firmware in virt-manager's VM creation wizard.
+      swtpm.enable = true;
     };
   };
 
   virtualisation.spiceUSBRedirection.enable = true;
-
   programs.virt-manager.enable = true;
 
   users.users.${username}.extraGroups = [ "libvirtd" "kvm" ];
@@ -83,22 +62,17 @@ in
     spice
     spice-gtk
     spice-protocol
-    virtio-win           # VirtIO drivers ISO for Windows guest
-    psmisc               # fuser -- used by the GPU hook
-    looking-glass-client # optional: mirror guest framebuffer into a host
-                         # window instead of losing display entirely
+    virtio-win
+    psmisc
+    looking-glass-client
   ];
 
   # =====================================================================
-  # Dynamic GPU bind/unbind hook
+  # Dynamic GPU Bind / Unbind Hook Script
   #
-  # KDE uses SDDM as its display manager, running as a systemd service.
-  # The sequence is:
-  #   prepare/begin  -> stop SDDM (takes KDE/Plasma down with it)
-  #                  -> kill any remaining GPU users
-  #                  -> unbind fbcon, unload amdgpu, hand device to vfio
-  #   release/end    -> reattach device, reload amdgpu, rebind fbcon
-  #                  -> restart SDDM (brings KDE back up)
+  # Uses the remove/rescan method for RDNA 4 (Navi 44/48) compatibility.
+  # This gives the GPU a clean PCI re-enumeration on release, which is
+  # the key difference that makes RDNA 4 passthrough work reliably.
   # =====================================================================
   environment.etc."libvirt/hooks/qemu" = {
     mode = "0755";
@@ -121,15 +95,11 @@ in
         exit 0
       fi
 
-      pci_slot_name() {
-        # 0000:0b:00.0 -> pci_0000_0b_00_0
-        echo "pci_$(echo "$1" | sed 's/[:.]/_/g')"
-      }
+      # Read vendor/device IDs for new_id/remove_id sysfs interface
+      gpu_vd="$(cat /sys/bus/pci/devices/$DEV_VGA/vendor | sed 's/0x//') $(cat /sys/bus/pci/devices/$DEV_VGA/device | sed 's/0x//')"
+      aud_vd="$(cat /sys/bus/pci/devices/$DEV_AUDIO/vendor | sed 's/0x//') $(cat /sys/bus/pci/devices/$DEV_AUDIO/device | sed 's/0x//')"
 
       kill_gpu_users() {
-        # After SDDM stops, stray processes (e.g. anything that was
-        # already running before KDE launched, or crash-survivors) may
-        # still hold DRI device nodes open. Kill them so amdgpu can unload.
         local drm_dir="/sys/bus/pci/devices/${gpuAddrVga}/drm"
         if [ -d "$drm_dir" ]; then
           for devnode in $(ls "$drm_dir" 2>/dev/null | grep -E '^(card|renderD)'); do
@@ -143,33 +113,21 @@ in
       }
 
       unbind_fb_vtconsoles() {
-        # fbcon may stay attached to amdgpu's framebuffer even after the
-        # display manager exits. Unbind before touching the driver or
-        # modprobe -r amdgpu will fail.
         for vtcon in /sys/class/vtconsole/vtcon*; do
           [ -e "$vtcon/name" ] || continue
-          if grep -qi "frame buffer" "$vtcon/name"; then
-            echo 0 > "$vtcon/bind" || true
-          fi
+          grep -qi "frame buffer" "$vtcon/name" && echo 0 > "$vtcon/bind" || true
         done
       }
 
       rebind_fb_vtconsoles() {
         for vtcon in /sys/class/vtconsole/vtcon*; do
           [ -e "$vtcon/name" ] || continue
-          if grep -qi "frame buffer" "$vtcon/name"; then
-            echo 1 > "$vtcon/bind" || true
-          fi
+          grep -qi "frame buffer" "$vtcon/name" && echo 1 > "$vtcon/bind" || true
         done
       }
 
       unload_amdgpu_stack() {
-        # modprobe -r resolves the full dependency tree automatically --
-        # no need to enumerate drm_ttm_helper, gpu_sched, etc. by hand
-        # (those names shift across kernel versions).
-        # drm core is intentionally left loaded; vfio-pci only needs
-        # amdgpu gone from the PCI device, not drm itself.
-        for i in $(seq 1 10); do
+        for i in $(seq 1 20); do
           if ! lsmod | grep -q "^amdgpu "; then
             break
           fi
@@ -185,41 +143,46 @@ in
       case "$OPERATION" in
         prepare)
           if [ "$SUB_OPERATION" = "begin" ]; then
-            # 1. Stop SDDM -- this brings down the entire KDE session.
-            #    systemctl stop is synchronous: it waits until SDDM and
-            #    all its child processes have actually exited.
-            systemctl stop sddm.service
+            # 1. Stop display manager and wait for full exit
+            systemctl stop display-manager.service
+            sleep 2
 
-            # 2. Kill any processes still holding GPU device nodes open.
+            # 2. Kill remaining GPU users
             kill_gpu_users
 
-            # 3. Unbind fbcon before touching the driver.
+            # 3. Unbind fbcon
             unbind_fb_vtconsoles
             sleep 0.5
 
-            # 4. Unload amdgpu, with retries.
+            # 4. Unload amdgpu
             unload_amdgpu_stack
 
-            # 5. Hand the PCI device to vfio-pci.
-            virsh nodedev-detach "$(pci_slot_name "$DEV_VGA")"   || true
-            virsh nodedev-detach "$(pci_slot_name "$DEV_AUDIO")" || true
+            # 5. Bind to vfio-pci using new_id (RDNA 4 compatible method)
+            echo "$DEV_VGA"   > "/sys/bus/pci/devices/$DEV_VGA/driver/unbind"   2>/dev/null || true
+            echo "$DEV_AUDIO" > "/sys/bus/pci/devices/$DEV_AUDIO/driver/unbind" 2>/dev/null || true
+            echo "$gpu_vd" > /sys/bus/pci/drivers/vfio-pci/new_id
+            echo "$aud_vd" > /sys/bus/pci/drivers/vfio-pci/new_id
           fi
           ;;
-        release)
+        release|stopped)
           if [ "$SUB_OPERATION" = "end" ]; then
-            # 1. Return the PCI device to the host.
-            virsh nodedev-reattach "$(pci_slot_name "$DEV_VGA")"   || true
-            virsh nodedev-reattach "$(pci_slot_name "$DEV_AUDIO")" || true
+            # 1. Remove device IDs from vfio-pci
+            echo "$gpu_vd" > /sys/bus/pci/drivers/vfio-pci/remove_id 2>/dev/null || true
+            echo "$aud_vd" > /sys/bus/pci/drivers/vfio-pci/remove_id 2>/dev/null || true
 
-            # 2. Reload amdgpu. drm core stayed loaded throughout.
-            modprobe amdgpu
+            # 2. Remove the PCI devices from the bus entirely
+            echo 1 > "/sys/bus/pci/devices/$DEV_VGA/remove"
+            echo 1 > "/sys/bus/pci/devices/$DEV_AUDIO/remove"
 
-            # 3. Give fbcon its framebuffer back.
-            sleep 0.5
+            # 3. Rescan PCI bus -- GPU re-enumerates cleanly, amdgpu picks it up
+            echo 1 > /sys/bus/pci/rescan
+
+            # 4. Rebind fbcon
+            sleep 1
             rebind_fb_vtconsoles
 
-            # 4. Restart SDDM -- brings KDE back up on the returned GPU.
-            systemctl start sddm.service
+            # 5. Restart display manager
+            systemctl start display-manager.service
           fi
           ;;
       esac

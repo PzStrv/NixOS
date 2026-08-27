@@ -20,6 +20,7 @@ environment.systemPackages = with pkgs; [
 # Hardware
 	piper
 	libratbag
+	pciutils
 
 # Editors
 	onlyoffice-desktopeditors

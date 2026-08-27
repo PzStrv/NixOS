@@ -40,7 +40,6 @@ home.packages = with pkgs; [
 	discord
 	proton-vpn
 	qbittorrent
-	winboat
 	lufus
 	freecad
 ];
