@@ -74,10 +74,14 @@ in
   # This gives the GPU a clean PCI re-enumeration on release, which is
   # the key difference that makes RDNA 4 passthrough work reliably.
   # =====================================================================
+  systemd.tmpfiles.rules = [
+      "L+ /var/lib/libvirt/hooks/qemu - - - - /etc/libvirt/hooks/qemu"
+  ];
+
   environment.etc."libvirt/hooks/qemu" = {
     mode = "0755";
     text = ''
-      #!/usr/bin/env bash
+#!${pkgs.bash}/bin/bash
       set -x
       exec >> /var/log/gpu-passthrough-hook.log 2>&1
       echo "=== $(date -Is) hook called: $* ==="
@@ -144,11 +148,11 @@ in
         prepare)
           if [ "$SUB_OPERATION" = "begin" ]; then
             # 1. Stop display manager and wait for full exit
-            systemctl stop display-manager.service
-            sleep 2
+			systemctl stop display-manager.service
+			loginctl terminate-user maj 2>/dev/null || true
+			sleep 2
 
             # 2. Kill remaining GPU users
-            kill_gpu_users
 
             # 3. Unbind fbcon
             unbind_fb_vtconsoles
@@ -157,6 +161,10 @@ in
             # 4. Unload amdgpu
             unload_amdgpu_stack
 
+			# 4.5 Resize BAR2 to 8MB -- required for RDNA 4
+            echo 3 > /sys/bus/pci/devices/0000:0b:00.0/resource2_resize || true
+            sleep 2
+
             # 5. Bind to vfio-pci using new_id (RDNA 4 compatible method)
             echo "$DEV_VGA"   > "/sys/bus/pci/devices/$DEV_VGA/driver/unbind"   2>/dev/null || true
             echo "$DEV_AUDIO" > "/sys/bus/pci/devices/$DEV_AUDIO/driver/unbind" 2>/dev/null || true
@@ -164,7 +172,7 @@ in
             echo "$aud_vd" > /sys/bus/pci/drivers/vfio-pci/new_id
           fi
           ;;
-        release|stopped)
+        release)
           if [ "$SUB_OPERATION" = "end" ]; then
             # 1. Remove device IDs from vfio-pci
             echo "$gpu_vd" > /sys/bus/pci/drivers/vfio-pci/remove_id 2>/dev/null || true
