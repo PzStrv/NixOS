@@ -23,6 +23,7 @@ home.packages = with pkgs; [
 	satisfactorymodmanager
 	prismlauncher
 	lunar-client
+	oversteer
 
 # Code
 	vscodium

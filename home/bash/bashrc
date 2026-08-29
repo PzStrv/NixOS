@@ -19,3 +19,7 @@ alias nixhome="cd /etc/nixos/home"
 
 # pi3
 alias pi3="ssh maj@192.168.1.125"
+
+# virtal machine (passthrough)
+alias win11on="sudo virsh start win11"
+alias win11off="sudo virsh shutdown win11"
